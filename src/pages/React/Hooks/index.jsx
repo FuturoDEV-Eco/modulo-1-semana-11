@@ -1,10 +1,29 @@
 import { useEffect, useState } from "react";
 import PostHeader from "../../../components/PostHeader";
 import SimpleCard from "../../../components/SimpleCard";
+import useFetch from "../../../hooks/useFetch";
+import TipText from "../../../components/TipText";
 
 function Hooks() {
  const [randomPass, setRandomPass] = useState(null);
  const [secondsInThePage, setSecondsInThePage] = useState(0);
+ const [incorrectSum, setIncorrectSum] = useState(0);
+ const [correctSum, setCorrectSum] = useState(0);
+ const [users, isLoading] = useFetch(
+  "https://jsonplaceholder.typicode.com/users"
+ );
+
+ function handleSumIncorrect() {
+  setIncorrectSum(incorrectSum + 1);
+  setIncorrectSum(incorrectSum + 1);
+  setIncorrectSum(incorrectSum + 1);
+ }
+
+ function handleSumCorrect() {
+  setCorrectSum((sum) => sum + 1);
+  setCorrectSum((sum) => sum + 1);
+  setCorrectSum((sum) => sum + 1);
+ }
 
  function generatePassword(length) {
   const charset =
@@ -30,7 +49,10 @@ function Hooks() {
 
  return (
   <div>
-   <PostHeader title="Hooks" description="Descreva o recurso de forma breve" />
+   <PostHeader
+    title="Hooks"
+    description="Funções que permitem que o componente tenha acesso a estados, ciclo de vida e outros recursos do React de maneira simplificada"
+   />
 
    <div id="page-content">
     <div>
@@ -101,10 +123,17 @@ function Hooks() {
       <h2 className="second-title">Hooks de referência</h2>
 
       <h2 className="caption">Pra que servem os Hooks de referência</h2>
-      <span className="mb-2">...</span>
+      <span className="mb-2">
+       Os hooks de referência permitem que um componente retenha algumas
+       informações que não são usadas para renderização, como um elemento do
+       HTML ou um ID de tempo limite. Ao contrário do estado, atualizar uma
+       referência não renderiza novamente seu componente. Refs são uma
+       &quot;saída de fuga&quot; do paradigma React.
+      </span>
 
       <span className="mb-2">
-       <b>useRef</b> ... descreva ...
+       <b>useRef</b> declara uma ref. Você pode armazenar qualquer valor nele,
+       mas na maioria das vezes é usado para armazenar um elemento do HTML.
       </span>
 
       <p>Para criar a referência:</p>
@@ -137,14 +166,37 @@ function Hooks() {
 
      <SimpleCard>
       <h2 className="second-title">Conceito</h2>
-      <span className="mb-1">...</span>
+      <span className="mb-1">
+       O React possui diversos hooks próprios que já conhecemos, mas se você
+       precisar de Hook específico é possível criar. Por exemplo, para buscar
+       dados, para verificar se o usuário está online, para persistir dados no
+       localStorage ou quaisquer outras necessidades específicas da sua
+       aplicação.
+      </span>
      </SimpleCard>
 
      <SimpleCard>
       <h2 className="second-title">Características</h2>
 
       <ul>
-       <li>...</li>
+       <li>
+        São utilizados para abstrair lógicas usadas por vários componentes.
+       </li>
+       <li>
+        Devem utilizar a convenção recomendada pelo React, sendo esta: ser
+        nomeados começando com use seguido por uma letra maiúscula. (exemplo:
+        useFetch)
+       </li>
+       <li>
+        Para organizar corretamente, o ideal é que sejam alocados em uma pasta
+        denominada hooks e que cada hook customizado esteja em um arquivo com o
+        mesmo nome dado ao hook, como no exemplo anterior{" "}
+        <b>/hooks/useFetch.js</b>.
+       </li>
+       <li>
+        Todos os Hooks são executados novamente sempre que seu componente é
+        renderizado novamente.
+       </li>
       </ul>
      </SimpleCard>
     </div>
@@ -153,7 +205,7 @@ function Hooks() {
      <h2 className="section-title">Demonstrações práticas</h2>
 
      <SimpleCard>
-      <h2 className="second-title">Criando um gerador de senhas</h2>
+      <h2 className="second-title">Criando um gerador de valores aleatórios</h2>
       <p className="mb-2">
        O botão abaixo vai gerar uma senha aleatória sempre que você clicar nele.
        Perceba que o componente influenciado pelo valor do estado é atualizado
@@ -165,6 +217,61 @@ function Hooks() {
       </button>
 
       <p className="caption">Senha gerada: {randomPass}</p>
+     </SimpleCard>
+
+     <SimpleCard>
+      <h2 className="second-title">
+       Atualizando estados com base no valor anterior
+      </h2>
+
+      <TipText
+       text="Para simular um ambiente onde o estado é atualizado mais de uma vez em um
+       curto período de tempo, ambas as somas são realizadas como intruções de
+       +1 por 3 vezes consecutivas."
+       margin="0 0 1rem"
+      />
+
+      <p className="mb-2">
+       O Hook useState funciona “como uma promise”, logo em algumas situações
+       quando referenciamos o valor atual do estado para adicionar +1 podem
+       haver confusões. Como no botão abaixo, que deveria somar 3 no valor:
+      </p>
+
+      <code className="mb-2">
+       setIncorrectSum(incorrectSum + 1); <br />
+       setIncorrectSum(incorrectSum + 1); <br />
+       setIncorrectSum(incorrectSum + 1);
+      </code>
+
+      <button className="mb-2" onClick={() => handleSumIncorrect()}>
+       Somar 3
+      </button>
+
+      <h4 className="caption">Resultado da soma: {incorrectSum}</h4>
+
+      <p className="mb-2">
+       Isso ocorre porque ele não está se baseando corretamente no estado
+       anterior. Nesse caso em específico o setState anterior ainda está em
+       execução e ele não executará os dois próximos.
+      </p>
+
+      <p className="mb-2">
+       Por situações como a de cima, o indicado sempre que se altera um estado
+       baseado no valor anterior é usar o padrão de &quot;atualizador&quot; do
+       useState, conforme o botão abaixo, que somará corretamente:
+      </p>
+
+      <code className="mb-2">
+       setCorrectSum((sum) ={">"} sum + 1); <br />
+       setCorrectSum((sum) ={">"} sum + 1); <br />
+       setCorrectSum((sum) ={">"} sum + 1);
+      </code>
+
+      <button className="mb-2" onClick={() => handleSumCorrect()}>
+       Somar 3
+      </button>
+
+      <h4 className="caption">Resultado da soma: {correctSum}</h4>
      </SimpleCard>
 
      <SimpleCard>
@@ -184,13 +291,13 @@ function Hooks() {
        busca de dados.
       </p>
 
-      {/* {isLoading && <p>Carregando usuários...</p>}
+      {isLoading && <p>Carregando usuários...</p>}
 
       {!isLoading && (
        <ul>
         {users && users.map((user) => <li key={user.id}>{user.name}</li>)}
        </ul>
-      )} */}
+      )}
      </SimpleCard>
     </div>
    </div>
